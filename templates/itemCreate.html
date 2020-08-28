@@ -1,0 +1,39 @@
+{% extends 'portal/base.html' %}
+{% load static %}
+{% load mytags %}
+{% load bootstrap %}
+{% block title %}创建密码{% endblock %}
+
+{% block content %}
+    <section class="content-header"></section>
+    <section class="content">
+    <div class="wrapper" style="width: 50%">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3>创建</h3>
+            </div>
+
+            <form role="form" method="post" action="{% url 'dashboard:item' %}" class="form-horizontal">
+                {% csrf_token %}
+                <div class="box-body" >
+                    {{ itemf | bootstrap_horizontal }}
+                </div>
+                <div class="box-footer ">
+                    <button class="btn btn-success" type="submit" >保存</button>
+                    <button class="btn btn-danger" id="back" type="button">返回</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </section>
+{% endblock %}
+
+{% block script %}
+    <script>
+        $(document).ready(function () {
+            $('#back').click(function () {
+               window.location.href = "{% url 'dashboard:item-list' %}";
+            });
+        })
+    </script>
+{% endblock %}

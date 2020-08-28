@@ -1,0 +1,52 @@
+{% extends 'portal/base.html' %}
+{% load static %}
+{% load bootstrap %}
+{% load mytags %}
+{% block title %}编辑{% endblock %}
+
+{% block content %}
+    <section class="content-header"></section>
+    <section class="content">
+    <div class="wrapper" style="width: 50%">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3>修改</h3>
+            </div>
+
+            <form method="post" action="{% url 'dashboard:item'%}?id={{ item.id }}" class="form-horizontal">
+                {% csrf_token %}
+                <div class="box-body">
+                    {{ itemf.title | bootstrap_horizontal }}
+                    {{ itemf.username | bootstrap_horizontal }}
+                    {{ itemf.group | bootstrap_horizontal }}
+                    <div class="form-group">
+                        <label class="control-label col-sm-2 col-lg-2" for="id_password">密码</label>
+                        <div class="col-sm-10 col-lg-10">
+                            <input type="text" name="password" value="{{ item.str_passwd }}"  maxlength="64" class=" form-control" required="" id="id_password">
+                        </div>
+                    </div>
+                    {{ itemf.url | bootstrap_horizontal }}
+                    {{ itemf.comment | bootstrap_horizontal }}
+                    <hr>
+
+                </div>
+                <div class="box-footer ">
+                    <button class="btn btn-success" type="submit" >保存</button>
+                    <button class="btn btn-danger" id="back" type="button">返回</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </section>
+{% endblock %}
+
+
+{% block script %}
+    <script>
+        $(document).ready(function () {
+            $('#back').click(function () {
+               window.location.href = "{% url 'dashboard:item-list' %}";
+            });
+        })
+    </script>
+{% endblock %}

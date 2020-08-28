@@ -1,0 +1,232 @@
+{% extends 'portal/base.html' %}
+{% load static %}
+{% load mytags %}
+{% block title %}密码条目管理{% endblock %}
+
+{% block css %}
+    <link href="{% static 'index.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{% block content %}
+    <section class="content-header">
+    <h1>
+        密码条目
+        <small>Item List</small>
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> 主页</a></li>
+        <li class="active">密码条目</li>
+    </ol>
+    <hr />
+    </section>
+
+    <section class="content">
+        <div class="table">
+            <table>
+                <tr>
+                    <td><a id="item_create" class="btn btn-success" href="{% url 'dashboard:item' %}">新增</a></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="table-responsive">
+            <table id="item_table" class="my_table table table-hover table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>名字</th>
+                        <th>所属组</th>
+                        <th>用户名</th>
+                        <th>密码</th>
+                        <th>URL</th>
+                        <th>备注</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in object_list %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ item.title }}</td>
+                            <td>{{ item.group.name }}</td>
+                            <td>
+                                <p class="username" data-clipboard-text="{{ item.username }}">{{ item.username }}</p>
+                            </td>
+                            <td>
+                                <p class='passwd' data-clipboard-text="{{ item.password|passwd2str }}">{{ item.password|pwd2fake }}</p>
+                            </td>
+                            <td>
+                                <p class="url" data-clipboard-text="{{ item.url }}">{{ item.url }}</p>
+                            </td>
+                            <td>{{ item.comment }}</td>
+                            <td>
+                                <span class="hidden">{{ item.id }}</span>
+                                <button type="button" data-toggle="modal"
+{#                                        data-target="#editFieldsModal"#}
+                                        class="btn btn-success btn-cn-fields" item_id="{{ item.id }}" >EntryFields</button>
+                                <a href="{% url 'dashboard:item'%}?id={{ item.id }}"><button type="button" class="btn btn-warning" >编辑</button></a>
+                                <button type="button" id="{{ item.id }}" class="btn btn-danger delete-item">删除</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+      </div>
+
+        {# 附加字段模态框 #}
+        <div class="modal fade" id="editFieldsModal" tabindex="-1" role="dialog" aria-labelledby="fieldsModal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">附加字段</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" aria-hidden="true">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" id="editItemGroupForm">
+                            {% csrf_token %}
+                            <div class="form-group" id="add-fields">
+                                <div class="row" >
+                                    <div class="col-sm-5">
+                                        <label class="control-label" for="id_fields_1">Name</label>
+                                    </div>
+                                    <div class="col-sm-5">
+                                        <label class="control-label" for="id_fields_1">Value</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-5">
+                                        <input type="text" name="key" class="modal-key" maxlength="64" class="form-control">
+                                    </div>
+                                    <div class="col-sm-5">
+                                        <input type="text" name="value" class="modal-value"  maxlength="64" class="form-control">
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <a href="#" onclick="addInputReturn(this)"><span class="glyphicon glyphicon-plus"></span></a>
+                                    </div>
+                                    <hr>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="submit" class="btn btn-primary"  id="editSubmit">提交</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block script %}
+
+    <script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'plugins/datatables/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'clipboard.min.js' %}"></script>
+    <script>
+        $(function () {
+            $('#item_table').DataTable({
+              "paging": true,       <!-- 允许分页 -->
+              "lengthChange": true, <!-- 允许改变每页显示的行数 -->
+              "searching": true,    <!-- 允许内容搜索 -->
+              "ordering": true,     <!-- 允许排序 -->
+              "info": true,         <!-- 显示信息 -->
+              "autoWidth": true
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('.passwd').click(function () {
+                var clipboard = new ClipboardJS(this);
+                clipboard.on('success', function (e) {
+                    console.log('success');
+                });
+                clipboard.on('error', function (e) {
+                    console.log('error',e)
+                })
+            });
+            $('.username').click(function () {
+                var clipboard = new ClipboardJS(this);
+                clipboard.on('success', function (e) {
+                    console.log('success');
+                });
+                clipboard.on('error', function (e) {
+                    console.log('error',e)
+                })
+            });
+            $('.url').click(function () {
+                var clipboard = new ClipboardJS(this);
+                clipboard.on('success', function (e) {
+                    console.log('success');
+                });
+                clipboard.on('error', function (e) {
+                    console.log('error',e)
+                })
+            });
+            $('.delete-item').click(function () {
+                var id = $(this).attr("id")
+                if(delConfirm()){
+                    $.ajax({
+                        url: "{% url 'dashboard:item'%}?id="+id,
+                        type: 'delete',
+                        success: function () {
+                            window.location.reload();
+                        },
+                        error: function (data) {
+                            alert("删除失败,原因：" + data.statusText);
+                        }
+                    })
+                } else {
+                    return
+                }
+            });
+
+            $('.btn-cn-fields').click(function () {
+                    var item_id = $(this).attr('item_id');
+                    window.open('{% url "dashboard:fields" %}?item_id='+item_id,
+                                '_blank',
+                                'height=400,width=600,top=200,left=500,toolbar=no,menubar=no,scrollbars=no,resizable=no,location=0,status=no');
+             })
+
+        });
+
+        function delInput(that) {
+            $(that).parent().parent().remove();
+        }
+
+        function addInputReturn(that) {
+                //添加减号
+                var $content = "";
+                $content += '<a href="#" onclick="delInput(this)" >';
+                $content += '<span class="glyphicon glyphicon-minus"></span>';
+                $content += '</a>';
+                $(that).parent().append($content);
+
+                //去除加号
+                that.remove();
+
+                //增加标签
+                var html = "";
+                html += '<div class="row">'
+                html += '<div class="col-sm-5">'
+                html += '<input type="text" name="key"  maxlength="64" class="form-control">'
+                html += '</div>'
+                html += '<div class="col-sm-5">'
+                html += '<input type="text" name="value"   maxlength="64" class="form-control">'
+                html += '</div>'
+                html += '<div class="col-sm-1">'
+                html += '<a href="#" id="dynamic" onclick="addInputReturn(this)"><span class="glyphicon glyphicon-plus"></span></a>'
+                html += '</div>'
+                html += '<hr>'
+                html += '</div>'
+                $("#add-fields").last().append(html);
+        }
+
+    </script>
+
+{% endblock %}

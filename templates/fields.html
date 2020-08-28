@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fields</title>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/font-awesome-4.6.3/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/ionicons-2.0.1/css/ionicons.min.css' %}">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{% static 'plugins/datatables/dataTables.bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/css/AdminLTE.min.css' %}">
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
+       folder instead of downloading all of them to reduce the load. -->
+    <link rel="stylesheet" href="{% static 'dist/css/skins/_all-skins.min.css' %}">
+</head>
+<body>
+<div class="wrapper" style="width: 95%; margin-left: 20px; margin-top: 20px">
+    <div class="box box-primary">
+        <div class="box-body">
+            <form method="post" action="{% url 'dashboard:fields' %}?item_id={{ item_id }}" role="form" id="fieldsForm">
+                {% csrf_token %}
+                <div class="form-group" id="add-fields">
+                    <div class="row" >
+                        <div class="col-xs-5">
+                            <label class="control-label">Name</label>
+                        </div>
+                        <div class="col-xs-5">
+                            <label class="control-label">Value</label>
+                        </div>
+                    </div>
+                        {% for each_field in fields %}
+                        <div class="row fields" >
+                            <div class="col-xs-5">
+                                <input type="text" name="key" value="{{ each_field.key }}"  class="form-control">
+                            </div>
+                            <div class="col-xs-5">
+                                <input type="text" name="value" value="{{ each_field.value }}" class="form-control">
+                            </div>
+                            <div class="col-xs-1">
+                                <a href="#" onclick="delInput(this)"><span class="glyphicon glyphicon-minus"></span></a>
+                            </div>
+                            <hr>
+                        </div>
+                        {% endfor %}
+                        <div class="row fields" >
+                            <div class="col-xs-5">
+                                <input type="text" name="key"  class="form-control">
+                            </div>
+                            <div class="col-xs-5">
+                                <input type="text" name="value"  class="form-control">
+                            </div>
+                            <div class="col-xs-1">
+                                <a href="#" onclick="addInputReturn(this)"><span class="glyphicon glyphicon-plus"></span></a>
+                            </div>
+                            <hr>
+                        </div>
+                </div>
+
+                <div class="box-footer ">
+                    <button class="btn btn-success" id="btn-submit" type="button" >保存</button>
+                    <button class="btn btn-danger" id="back" href="" type="button">返回</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="{%  static 'plugins/jQuery/jquery-2.2.3.min.js' %}" ></script>
+    <script src="{% static 'plugins/jQueryUI/jquery-ui.min.js' %}"></script>
+    <script src="{%  static 'dist/js/app.min.js' %}"></script>
+    <script src="{%  static 'bootstrap/js/bootstrap.min.js' %}" ></script>
+    <script>
+
+        //TODO 增加遮罩，控制window只弹出一次
+
+        $(document).ready(function () {
+            $('#btn-submit').click(function () {
+                $('#fieldsForm').submit();
+                alert("修改成功")
+            });
+
+            $('#back').click(function () {
+                window.close();
+            })
+        });
+
+        function delInput(that) {
+            $(that).parent().parent().remove();
+        }
+
+        function addInputReturn(that) {
+                //添加减号
+                var $content = "";
+                $content += '<a href="#" onclick="delInput(this)" >';
+                $content += '<span class="glyphicon glyphicon-minus"></span>';
+                $content += '</a>';
+                $(that).parent().append($content);
+
+                //去除加号
+                that.remove();
+
+                //增加标签
+                var html = "";
+                html += '<div class="row fields" id=>'
+                html += '<div class="col-xs-5">'
+                html += '<input type="text" name="key"   class="form-control">'
+                html += '</div>'
+                html += '<div class="col-xs-5">'
+                html += '<input type="text" name="value"  class="form-control">'
+                html += '</div>'
+                html += '<div class="col-xs-1">'
+                html += '<a href="#" id="dynamic" onclick="addInputReturn(this)"><span class="glyphicon glyphicon-plus"></span></a>'
+                html += '</div>'
+                html += '<hr>'
+                html += '</div>'
+                $("#add-fields").last().append(html);
+        }
+
+    </script>
+</body>
+</html>

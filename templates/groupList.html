@@ -1,0 +1,192 @@
+{% extends 'portal/base.html' %}
+{% load static %}
+{% load mytags %}
+{% block title %}密码组{% endblock %}
+
+{% block css %}
+    <link href="{% static 'index.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{% block content %}
+<!-- Content Header (Page header) -->
+    <section class="content-header">
+        <h1>
+            密码组
+            <small>ItemGroup List</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> 主页</a></li>
+            <li class="active">密码组</li>
+        </ol>
+        <hr />
+    </section>
+
+    <section class="content">
+        <div class="table">
+            <table>
+                <tr>
+                    <td><button data-toggle="modal" data-target="#createGroupModal" class="btn btn-success">新增</button></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="table-responsive">
+            <table id="item_group_table" class="my_table table table-hover table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>组名</th>
+                        <th>密码条数</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ig in object_list %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td><a href="{% url 'dashboard:item-list' %}?gid={{ ig.id }}">{{ ig.name }}</a></td>
+                            <td>{{ ig.id|items_cnt }}</td>
+                            <td>
+                                <button type="button" data-toggle="modal"
+                                        data-target="#editGroupModal"
+                                        class="btn btn-warning btn-cn-edit" name="{{ ig.name }}" id="{{ ig.id }}">编辑</button>
+                                <button type="button" class="btn btn-danger btn-cn-delete" id="{{ ig.id }}">删除</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+        {# 新建模态框 #}
+        <div class="modal fade" id="createGroupModal" tabindex="-1" role="dialog" aria-labelledby="createGroupModal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel">创建密码组</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" aria-hidden="true">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="{% url 'dashboard:group' %}" id="CreateItemGroupForm">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                {{ form.as_p }}
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="submit" class="btn btn-primary" onclick="createFormSubmit()" id="createItemGroup">提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# 编辑模态框 #}
+        <div class="modal fade" id="editGroupModal" tabindex="-1" role="dialog" aria-labelledby="editGroupModal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">修改密码组</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" aria-hidden="true">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" id="editItemGroupForm">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label>Name:</label>
+                                <input type="text" class="input-lg" autofocus id="editInputName" >
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="submit" class="btn btn-primary"  id="editSubmit">提交</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+{% endblock %}
+
+
+{% block script %}
+
+    <script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'plugins/datatables/dataTables.bootstrap.min.js' %}"></script>
+
+    <script>
+        $(function () {
+            $('#item_group_table').DataTable({
+              "paging": true,       <!-- 允许分页 -->
+              "lengthChange": true, <!-- 允许改变每页显示的行数 -->
+              "searching": true,    <!-- 允许内容搜索 -->
+              "ordering": true,     <!-- 允许排序 -->
+              "info": true,         <!-- 显示信息 -->
+              "autoWidth": true
+            });
+        });
+    </script>
+
+    <script>
+
+        function createFormSubmit() {
+            $('#CreateItemGroupForm').submit();
+        };
+
+        $(document).ready(function () {
+            $('#editSubmit').click(function () {
+                var gid = $(this).attr("gid");
+                var new_name = $('#editInputName').val()
+                $.ajax({
+                    url: "{% url 'dashboard:group-update' 123 %}".replace('123', gid),
+                    type: 'POST',
+                    data: {"name": new_name},
+                    success: function () {
+                        alert("更新成功");
+                        window.location.reload();
+                    },
+                    error: function (e) {
+                        alert("更新失败，原因："+e);
+                    }
+                 });
+            })
+
+            $('.btn-cn-edit').click(function () {
+                var name = $(this).attr("name");
+                var gid = $(this).attr("id");
+                var url = "{% url 'dashboard:group-update' 123 %}".replace(123, gid)
+                $('#editInputName').attr("value", name);
+                $('#editSubmit').attr("gid", gid);
+                {#$('#editItemGroupForm').attr("action", url);#}
+            });
+
+            $('.btn-cn-delete').click(function () {
+                var gid = $(this).attr("id");
+                if(delConfirm()){
+                    $.ajax({
+                        url: "{% url 'dashboard:group-delete' 123 %}".replace('123', gid),
+                        type: 'DELETE',
+                        success: function () {
+                            window.location.reload();
+                        },
+                        error: function (data) {
+                            alert("删除失败,原因：" + data.statusText);
+                        }
+                    });
+                }else{
+                    return
+                }
+
+            });
+
+        });
+
+
+    </script>
+
+{% endblock %}

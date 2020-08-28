@@ -1,0 +1,17 @@
+*.log
+*.pyc
+*.so
+*.egg
+*.egg-info
+build
+*.log
+.git
+venv
+__pycache__/*
+.venv
+*/migrations/*
+.idea/*
+db.sqlite3
+webKeepass/local_settings.py
+static
+Pipfile.lock
