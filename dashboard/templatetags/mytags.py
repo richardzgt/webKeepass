@@ -8,24 +8,33 @@
 
 from django import template
 from dashboard.models import Item
+from utils.enhance import auto_log
+import logging
+
 register = template.Library()
+logger = logging.getLogger('webKeepass')
 
 @register.filter(name='passwd2str')
+@auto_log
 def passwd2str(value):
     """
     密码解码
     """
-    if value:
-        return Item.decode_passwd(value)
+    try:
+        if value:
+            return Item.decode_passwd(value)
+    except Exception as e:
+        logger.error(e)
     return
 
 
 @register.filter(name='pwd2fake')
+@auto_log
 def pwd2fake(pwd):
-    if pwd:
-        if len(pwd)>0:
-            return 6*"*"
-    return
+    if pwd == None:
+        return "None"
+    else:
+        return 6*"*"
 
 
 @register.filter(name='items_cnt')

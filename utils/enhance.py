@@ -5,6 +5,24 @@
 # @Author : richard zhu
 # @purpose :
 from dashboard.models import Item
+import functools
+import logging
+import traceback
+logger = logging.getLogger('webKeepass')
+
+def auto_log(func):
+    """
+    auto write log decorator
+    """
+    @functools.wraps(func)
+    def _deco(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            logger.error(e)
+            return False, e.__str__()
+    return _deco
 
 def get_object(model, **kwargs):
     if not kwargs:

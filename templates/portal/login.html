@@ -64,6 +64,7 @@
             $('#id_password').bind('keypress', function (e) {
                 if (e.keyCode == 13) {
                     $('#id_verfiy').val = ""
+                    $(this).unbind('keypress')
                     $('#verifModal').modal("show");
                 }
             })

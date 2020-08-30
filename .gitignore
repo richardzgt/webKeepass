@@ -13,5 +13,4 @@ __pycache__/*
 .idea/*
 db.sqlite3
 webKeepass/local_settings.py
-static
 Pipfile.lock
