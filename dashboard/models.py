@@ -60,7 +60,9 @@ class Item(models.Model):
 
     @property
     def str_passwd(self):
-        return PyCrypt().decrypt(self.password)
+        if self.password:
+            return PyCrypt().decrypt(self.password)
+        return None
 
     @staticmethod
     def decode_passwd(value):
