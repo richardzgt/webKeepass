@@ -22,14 +22,9 @@
     </section>
 
     <section class="content">
-        <div class="table">
-            <table>
-                <tr>
-                    <td><a id="item_create" class="btn btn-success" href="{% url 'dashboard:item' %}">新增</a></td>
-                </tr>
-            </table>
+        <div class="row" style="margin-bottom: 20px">
+            <a id="item_create" style="margin-left: 15px" class="btn btn-success" href="{% url 'dashboard:item' %}">新增</a>
         </div>
-
         <div class="table-responsive">
             <table id="item_table" class="my_table table table-hover table-bordered table-striped">
                 <thead>
@@ -51,22 +46,22 @@
                             <td>{{ item.title }}</td>
                             <td>{{ item.group.name }}</td>
                             <td>
-                                <p class="username" data-clipboard-text="{{ item.username }}">{{ item.username }}</p>
+                                <p data-role="username" data-clipboard-text="{{ item.username }}">{{ item.username }}</p>
                             </td>
                             <td>
-                                <p class='passwd' data-clipboard-text="{{ item.password|passwd2str }}">{{ item.password|pwd2fake }}</p>
+                                <p data-role='passwd' data-clipboard-text="{{ item.password|passwd2str }}">{{ item.password|pwd2fake }}</p>
                             </td>
                             <td>
-                                <p class="url" data-clipboard-text="{{ item.url }}">{{ item.url }}</p>
+                                <p data-role="url" data-clipboard-text="{{ item.url }}">{{ item.url }}</p>
                             </td>
                             <td>{{ item.comment }}</td>
                             <td>
                                 <span class="hidden">{{ item.id }}</span>
                                 <button type="button" data-toggle="modal"
-{#                                        data-target="#editFieldsModal"#}
-                                        class="btn btn-success btn-cn-fields" item_id="{{ item.id }}" >EntryFields</button>
+                                        data-role="btn-cn-fields"
+                                        class="btn btn-success" item_id="{{ item.id }}" >EntryFields</button>
                                 <a href="{% url 'dashboard:item'%}?id={{ item.id }}"><button type="button" class="btn btn-warning" >编辑</button></a>
-                                <button type="button" id="{{ item.id }}" class="btn btn-danger delete-item">删除</button>
+                                <button type="button" data-role="delete-item" id="{{ item.id }}" class="btn btn-danger">删除</button>
                             </td>
                         </tr>
                     {% endfor %}
@@ -74,49 +69,6 @@
             </table>
       </div>
 
-        {# 附加字段模态框 #}
-        <div class="modal fade" id="editFieldsModal" tabindex="-1" role="dialog" aria-labelledby="fieldsModal" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">附加字段</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" aria-hidden="true">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <form method="post" id="editItemGroupForm">
-                            {% csrf_token %}
-                            <div class="form-group" id="add-fields">
-                                <div class="row" >
-                                    <div class="col-sm-5">
-                                        <label class="control-label" for="id_fields_1">Name</label>
-                                    </div>
-                                    <div class="col-sm-5">
-                                        <label class="control-label" for="id_fields_1">Value</label>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-5">
-                                        <input type="text" name="key" class="modal-key" maxlength="64" class="form-control">
-                                    </div>
-                                    <div class="col-sm-5">
-                                        <input type="text" name="value" class="modal-value"  maxlength="64" class="form-control">
-                                    </div>
-                                    <div class="col-sm-1">
-                                        <a href="#" onclick="addInputReturn(this)"><span class="glyphicon glyphicon-plus"></span></a>
-                                    </div>
-                                    <hr>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                        <button type="submit" class="btn btn-primary"  id="editSubmit">提交</button>
-                    </div>
-                </div>
-            </div>
-
-        </div>
     </section>
 
 {% endblock %}
@@ -140,58 +92,68 @@
     </script>
 
     <script>
-        $(document).ready(function () {
-            $('.passwd').click(function () {
-                var clipboard = new ClipboardJS(this);
-                clipboard.on('success', function (e) {
-                    console.log('success');
+        var klass={
+            init: function () {
+                this.table = $('#item_table');
+                this.initTable();
+            },
+            initTable: function () {
+                this.table.on('click', '[data-role="passwd"]', function () {
+                    var clipboard = new ClipboardJS(this);
+                    clipboard.on('error', function (e) {
+                        console.log('error',e)
+                    });
                 });
-                clipboard.on('error', function (e) {
-                    console.log('error',e)
-                })
-            });
-            $('.username').click(function () {
-                var clipboard = new ClipboardJS(this);
-                clipboard.on('success', function (e) {
-                    console.log('success');
-                });
-                clipboard.on('error', function (e) {
-                    console.log('error',e)
-                })
-            });
-            $('.url').click(function () {
-                var clipboard = new ClipboardJS(this);
-                clipboard.on('success', function (e) {
-                    console.log('success');
-                });
-                clipboard.on('error', function (e) {
-                    console.log('error',e)
-                })
-            });
-            $('.delete-item').click(function () {
-                var id = $(this).attr("id")
-                if(delConfirm()){
-                    $.ajax({
-                        url: "{% url 'dashboard:item'%}?id="+id,
-                        type: 'delete',
-                        success: function () {
-                            window.location.reload();
-                        },
-                        error: function (data) {
-                            alert("删除失败,原因：" + data.statusText);
-                        }
-                    })
-                } else {
-                    return
-                }
-            });
 
-            $('.btn-cn-fields').click(function () {
+
+                this.table.on('click', '[data-role="username"]', function () {
+                    var clipboard = new ClipboardJS(this);
+                    clipboard.on('error', function (e) {
+                        console.log('error',e)
+                    });
+                });
+
+                this.table.on('click', '[data-role="url"]', function () {
+                    var clipboard = new ClipboardJS(this);
+                    clipboard.on('error', function (e) {
+                        console.log('error',e)
+                    })
+                });
+
+                this.table.on('click', '[data-role="delete-item"]', function () {
+                    var id = $(this).attr("id");
+                    if(delConfirm()){
+                        $.ajax({
+                            url: "{% url 'dashboard:item'%}?id="+id,
+                            type: 'delete',
+                            success: function () {
+                                window.location.reload();
+                            },
+                            error: function (data) {
+                                alert("删除失败,原因：" + data.statusText);
+                            }
+                        })
+                    } else {
+                        return
+                    }
+                });
+
+                this.table.on('click', '[data-role="btn-cn-fields"]', function () {
                     var item_id = $(this).attr('item_id');
                     window.open('{% url "dashboard:fields" %}?item_id='+item_id,
                                 '_blank',
                                 'height=400,width=600,top=200,left=500,toolbar=no,menubar=no,scrollbars=no,resizable=no,location=0,status=no');
-             })
+             });
+
+
+            }
+        }
+
+
+        $(document).ready(function () {
+
+            klass.init()
+
 
         });
 

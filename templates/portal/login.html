@@ -34,16 +34,16 @@
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close" aria-hidden="true">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <form method="post" id="editItemGroupForm">
+                        <div method="post" id="editItemGroupForm">
                             {% csrf_token %}
                             <div class="form-group" id="add-fields">
                                 <div class="row">
                                     <div class="col-sm-5">
-                                        <div><input type="text" id="id_verfiy" autofocus=""  maxlength="64" class="form-control"></div>
+                                        <div><input type="text" id="id_verfiy" autofocus  maxlength="64" class="form-control"></div>
                                     </div>
                                 </div>
                             </div>
-                        </form>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
@@ -64,15 +64,26 @@
             $('#id_password').bind('keypress', function (e) {
                 if (e.keyCode == 13) {
                     $('#id_verfiy').val = ""
-                    $(this).unbind('keypress')
                     $('#verifModal').modal("show");
                 }
-            })
+            });
 
             $('#submit-button').click(function () {
                 $('#verifModal').modal("show"); //打开模态框
              });
+
+            $("#id_verfiy").bind('keypress', function (e) {
+                if (e.keyCode == 13) {
+                    loginSubmit();
+                }
+            });
+
             $('#verfiySubmit').click(function () {
+                loginSubmit();
+            });
+        });
+
+        function loginSubmit() {
                 var username = $('#id_username').val();
                 var password = $('#id_password').val();
                 var verfiy = $("#id_verfiy").val();
@@ -91,8 +102,7 @@
                 } else {
                     alert("输入出错")
                 }
-            })
-        });
+        }
 
     </script>
 

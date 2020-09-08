@@ -199,9 +199,8 @@ LOGGING = {
 
 # 浏览器关闭就清除会话
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-#
+# 默认会话时间2小时
 SESSION_COOKIE_AGE = 3600 * 2
-
 
 
 ##### 必填 ####

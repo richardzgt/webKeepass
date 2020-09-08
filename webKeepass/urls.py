@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 from django.conf.urls.static import static
 from django.conf import settings
 from portal.views import LogoutView, LoginView, bad_request, page_not_found
@@ -23,7 +24,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', LoginView.as_view(), name="login"),
     path('logout/', LogoutView.as_view(), name="logout"),
-    path('', include('dashboard.urls'))
+    path('', include('dashboard.urls')),
+    path('favicon.ico', RedirectView.as_view(url='/static/image/favicon.ico'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 

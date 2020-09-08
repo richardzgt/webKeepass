@@ -11,8 +11,9 @@
 4) 菜单：
     密码管理
     日志
+5) 双击复制密码、用户名、url
 
 # TODO:
-   1 checkbox
-   2 优化fields页面
-   3 标签加icon功能
+   1 密码列表增加checkbox功能
+   2 优化fields页面显示，只显示一个
+   3 修改用户名密码

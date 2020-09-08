@@ -105,7 +105,7 @@ class ItemView(DefaultMixin, View):
                     for key, value in d.items():
                         setattr(item_obj, key, value)
                     item_obj.save()
-                    return HttpResponseRedirect(reverse("dashboard:item-list"))
+                    return HttpResponseRedirect(reverse("dashboard:item-list")+ "?gid=%s" % item_obj.group_id)
             else:
                 error_msg = itf.errors.as_json()
         except Exception as e:
