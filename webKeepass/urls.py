@@ -14,9 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.views.generic import RedirectView
 from django.conf.urls.static import static
+from django.views import static  as view_static
 from django.conf import settings
 from portal.views import LogoutView, LoginView, bad_request, page_not_found
 
@@ -26,8 +27,12 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name="logout"),
     path('', include('dashboard.urls')),
     path('favicon.ico', RedirectView.as_view(url='/static/image/favicon.ico'))
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
+if settings.DEBUG == False:
+    urlpatterns += [
+        re_path(r'^static/(?P<path>.*)$', view_static.serve, {'document_root': settings.STATIC_ROOT }, name='static'),
+    ]
 
 handler400 = bad_request
 handler404 = page_not_found

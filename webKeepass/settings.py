@@ -26,13 +26,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'cnzxt%%!x+v4_0oec1l6wdu@^)++#qaq+mb0uzh5@7ec7$4n2$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
+DEBUG = False
 ALLOWED_HOSTS = []
+if DEBUG == False:
+    ALLOWED_HOSTS = ['*']
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -136,6 +136,9 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+if DEBUG == False:
+    STATIC_ROOT = 'static'
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, '/static/')]
 
 # 日志
 LOGGING_DIR = os.path.join(BASE_DIR, 'logs')
@@ -212,7 +215,8 @@ EMAIL_FROM = 'a30402104@126.com'
 EMAIL_HOST = 'smtp.126.com'
 SITE_URL = 'webkeepass.gaotao.club:9999'
 
-
+import mimetypes
+mimetypes.add_type("text/css", ".css", True)
 
 
 try:
