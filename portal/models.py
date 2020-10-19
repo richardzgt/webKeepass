@@ -67,3 +67,37 @@ class UserProfile(models.Model):
     class Meta:
         verbose_name = "用户信息"
         verbose_name_plural = "用户信息"
+
+class SysLog(models.Model):
+    """
+    记录用户行为
+    限制登陆
+    """
+    ACTION_CHOICE=(
+        ('create', '创建'),
+        ('update', '更新'),
+        ('delete', '删除'),
+    )
+
+    ATTR_CHOICE = (
+        ('Login', '登陆'),
+        ('ItemGroup', '密码组'),
+        ('Item', '密码条'),
+        ('Fields', '字段')
+    )
+
+    user = models.CharField(max_length=150)
+    ip = models.GenericIPAddressField()
+    action = models.CharField(max_length=50, choices=ACTION_CHOICE, verbose_name="动作", default=1)
+    attr = models.CharField(max_length=120, choices=ATTR_CHOICE, verbose_name="属性", blank=True, null=True)
+    message = models.TextField(verbose_name="信息", blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
+
+    def __str__(self):
+        return "<%s> [%s] [%s] from <%s>" % (self.user, self.action, self.message, self.ip)
+
+    class Meta:
+        verbose_name = "用户行为记录"
+        verbose_name_plural = "用户行为记录"
+        ordering = ['-created_at']
+

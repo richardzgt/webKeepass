@@ -22,7 +22,7 @@ from django.conf import settings
 from portal.views import LogoutView, LoginView, bad_request, page_not_found
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('%s/' % settings.ADMIN_URL, admin.site.urls, name='admin'),  # 安全措施，防止admin外泄
     path('login/', LoginView.as_view(), name="login"),
     path('logout/', LogoutView.as_view(), name="logout"),
     path('', include('dashboard.urls')),

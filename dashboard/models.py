@@ -9,13 +9,14 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from utils.pycrypt import PyCrypt
+from utils.bench import BaseModel
 from django.shortcuts import reverse
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-class ItemGroup(models.Model):
+class ItemGroup(BaseModel):
     name = models.CharField(max_length=64, verbose_name="组名", unique=True)
     user = models.ForeignKey(User,
                              related_name='+',
@@ -32,7 +33,7 @@ class ItemGroup(models.Model):
         verbose_name = "密码组"
         verbose_name_plural = "密码组"
 
-class Item(models.Model):
+class Item(BaseModel):
     title = models.CharField(max_length=64, verbose_name=_("密码条目名"))
     username = models.CharField(max_length=64, verbose_name=_("密码用户名"))
     password = models.CharField(max_length=128, verbose_name=_("密码"), blank=True, null=True)
@@ -66,11 +67,17 @@ class Item(models.Model):
 
     @staticmethod
     def decode_passwd(value):
-        return PyCrypt().decrypt(value)
+        try:
+            return PyCrypt().decrypt(value)
+        except Exception as e:
+            pass
 
     @staticmethod
     def encode_passwd(value):
-        return PyCrypt().encrypt(value)
+        try:
+            return PyCrypt().encrypt(value)
+        except Exception as e:
+            pass
 
     def __str__(self):
         return "[%s] <%s> %s" % (self.group.name, self.title, self.username)
@@ -81,7 +88,7 @@ class Item(models.Model):
         ordering = ['group']
 
 
-class CustomKV(models.Model):
+class CustomKV(BaseModel):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, verbose_name="关联条目")
     key = models.CharField(max_length=64, verbose_name="key")
     value = models.CharField(max_length=64, verbose_name="value")
@@ -93,26 +100,3 @@ class CustomKV(models.Model):
         verbose_name = "自定义字段"
         verbose_name_plural = "自定义字段"
 
-
-class Log(models.Model):
-    log_level_choices = (
-        (0, 'DEBUG'),
-        (1, 'INFO'),
-        (2, 'WARNING'),
-        (3, 'ERROR'),
-        (4, 'CRITICAL'),
-    )
-
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name="日志产生用户")
-    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, verbose_name="密码项")
-    log_level = models.IntegerField(choices=log_level_choices, default=0, verbose_name="操作")
-    content = models.TextField(blank=True, null=True)
-    create_at = models.DateTimeField(auto_now_add=True, verbose_name="记录时间")
-
-    def __str__(self):
-        return "%s [%s] <%s> [%s]" % (self.user.username, self.item.title, self.log_level, self.create_at)
-
-    class Meta:
-        verbose_name = "日志"
-        verbose_name_plural = "日志"
-        ordering = ['-create_at']

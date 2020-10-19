@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Item, ItemGroup, CustomKV, Log
+from .models import Item, ItemGroup, CustomKV
 from django.contrib.auth.models import User
 
 
@@ -12,10 +12,6 @@ class ItemGroupAdmin(admin.ModelAdmin):
 class CustomKVAdmin(admin.ModelAdmin):
     pass
 
-class LogAdmin(admin.ModelAdmin):
-    pass
-
 admin.site.register(Item, ItemAdmin)
 admin.site.register(ItemGroup, ItemGroupAdmin)
 admin.site.register(CustomKV, CustomKVAdmin)
-admin.site.register(Log, LogAdmin)

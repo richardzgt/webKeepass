@@ -26,7 +26,7 @@ class ItemForm(forms.ModelForm):
 
     class Meta:
         model = Item
-        # fields = '__all__'
+
         fields = ['title', 'username', 'password', 'group', 'url', 'comment' ]
 
         widgets = {

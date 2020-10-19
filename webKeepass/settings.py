@@ -26,10 +26,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'cnzxt%%!x+v4_0oec1l6wdu@^)++#qaq+mb0uzh5@7ec7$4n2$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-ALLOWED_HOSTS = []
-if DEBUG == False:
-    ALLOWED_HOSTS = ['*']
+DEBUG = True
+ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1']
 
 
 # Application definition
@@ -136,7 +134,9 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
 if DEBUG == False:
+    ALLOWED_HOSTS = ['*']
     STATIC_ROOT = 'static'
     STATICFILES_DIRS = [os.path.join(BASE_DIR, '/static/')]
 
@@ -206,17 +206,24 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 3600 * 2
 
 
-##### 必填 ####
-KEY = 'ohyti3r21br266e5'
-EMAIL_HOST_USER = 'a30402104@126.com'
-EMAIL_HOST_PASSWORD = 'show20070522a'
-EMAIL_USE_TLS = True
-EMAIL_FROM = 'a30402104@126.com'
-EMAIL_HOST = 'smtp.126.com'
-SITE_URL = 'webkeepass.gaotao.club:9999'
+##### 必填 #####
+KEY = '3hyop5r21ac466e5'
+EMAIL_HOST_USER = 'youremail@email.com'
+EMAIL_HOST_PASSWORD = 'password'
+EMAIL_USE_TLS = False # if use SSL
+# EMAIL_PORT = 25
+EMAIL_USE_SSL = True
+EMAIL_PORT = 465
+EMAIL_FROM = 'youremail@email.com'
+EMAIL_HOST = 'smtp.email.com'
+SITE_URL = 'website_url'
 
-import mimetypes
-mimetypes.add_type("text/css", ".css", True)
+
+## 安全设置 ##
+ADMIN_URL = 'admin' # admin
+KEEP_QR_FILE = False # otp二维码是否保存成文件，默认不保存
+TRY_LOGIN_FAILED_INTERVAL = 10 # 重试失败间隔时间,分钟
+TRY_TIME = 3 # 重试次数
 
 
 try:
@@ -229,6 +236,4 @@ except (ImportError, ImportWarning):
     print("\033[44;37m create local_settings.py and config it.\033[0m")
     print("\033[44;37m                                        \033[0m")
     print("\033[44;37m ###################################### \033[0m")
-
-
 

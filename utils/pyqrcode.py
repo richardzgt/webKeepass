@@ -12,6 +12,7 @@ import traceback
 import pyotp
 import io
 import base64
+import psutil
 
 STATIC_PATH = os.path.join(settings.BASE_DIR, 'static', 'image', 'mfa')
 
@@ -31,8 +32,12 @@ class QrCode(object):
             qr.add_data(data)
             qr.make(fit=True)
             img = qr.make_image()
-            self.img_file = self.dirpath + os.sep + self.secret_key + '.png'
-            img.save(self.img_file)  # 保存条形码图片
+
+            if settings.KEEP_QR_FILE is True:
+                self.img_file = self.dirpath + os.sep + self.secret_key + '.png'
+                img.save(self.img_file)  # 保存条形码图片
+            else:
+                self.img_file = None
 
             buf = io.BytesIO()
             img.save(buf, format='PNG') # 保存成字符串

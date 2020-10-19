@@ -1,10 +1,10 @@
 from django.shortcuts import get_object_or_404, reverse, render, redirect, HttpResponse, HttpResponseRedirect
-from django.views.generic import View, ListView, CreateView, DetailView, UpdateView, DeleteView
+from django.views.generic import View, ListView, UpdateView, DeleteView
 from django.http import JsonResponse
 from django.urls import reverse_lazy
 from dashboard.models import Item, ItemGroup, CustomKV
 from dashboard.form import GroupForm, ItemForm, FieldsForm
-from utils.enhance import get_object, items_filter
+from utils.enhance import get_object, items_filter, RecordSysLog, auto_log
 from portal.views import DefaultMixin
 import logging
 import json
@@ -32,10 +32,13 @@ class GroupListView(DefaultMixin, ListView):
             ItemGroup.objects.create(name=name.strip(),
                                      user=request.user,
                                      )
+            RecordSysLog(request, "create", "ItemGroup").record_syslog("%s" % name)
             return HttpResponseRedirect(reverse('dashboard:group'))
         except Exception as e:
             logger.error(e)
             return HttpResponse(e, status=400)
+
+
 
 class GroupUpdate(DefaultMixin, UpdateView):
     model = ItemGroup
@@ -48,7 +51,10 @@ class GroupUpdate(DefaultMixin, UpdateView):
         group = get_object_or_404(ItemGroup, id=pk)
         try:
             for key, value in request.POST.items():
-                setattr(group, key, value)
+                old_value = getattr(group, key)
+                if old_value != value:
+                    setattr(group, key, value)
+                    RecordSysLog(request, "update", "ItemGroup").record_syslog("<%s> [%s]: %s -> %s" % (group.name, key, old_value, value))
             group.save()
             return HttpResponse(status=202)
         except Exception as e:
@@ -60,7 +66,9 @@ class GroupDelete(DefaultMixin, DeleteView):
     """
     def delete(self, request, pk):
         try:
-            ItemGroup.objects.filter(user=request.user).filter(pk=pk).delete()
+            group = ItemGroup.objects.filter(user=request.user).filter(pk=pk)
+            group.delete()
+            RecordSysLog(request, "delete", "ItemGroup").record_syslog("<%s>" % (group.name))
             return HttpResponse(status=200)
         except Exception as e:
             return HttpResponse(json.dumps({'msg':e}), status=400)
@@ -97,13 +105,20 @@ class ItemView(DefaultMixin, View):
                 # 不存在则新增数据
                 if not result:
                     itf.save()
+                    # logger.error(itf.fields.title)
+                    RecordSysLog(request, "create", "Item").record_syslog("<{title}> 用户名[{username}] 密码[{password}] ".format(**itf.cleaned_data))
                     return HttpResponseRedirect(reverse("dashboard:item-list"))
                 # 存在则修改数据
                 else:
                     item_obj = result[0]
                     d = itf.cleaned_data
                     for key, value in d.items():
-                        setattr(item_obj, key, value)
+                        old_value = getattr(item_obj, key)
+                        if key == 'password' and Item.decode_passwd(old_value) == value:
+                            continue
+                        if old_value != value :
+                            setattr(item_obj, key, value)
+                            RecordSysLog(request, "update", "Item").record_syslog("<%s> [%s]: %s -> %s" % (d['title'], key, Item.decode_passwd(old_value), value))
                     item_obj.save()
                     return HttpResponseRedirect(reverse("dashboard:item-list")+ "?gid=%s" % item_obj.group_id)
             else:
@@ -117,7 +132,9 @@ class ItemView(DefaultMixin, View):
     def delete(self, request):
         try:
             id = request.GET.get("id")
-            items_filter(request.user, id=id).delete()
+            item = items_filter(request.user, id=id)
+            item.delete()
+            RecordSysLog(request, "delete", "Item").record_syslog("<%s>" % (item.title))
             return HttpResponse(status=200)
         except Exception as e:
             return HttpResponse(str(e), status=400)
