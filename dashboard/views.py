@@ -1,11 +1,11 @@
 from django.shortcuts import get_object_or_404, reverse, render, redirect, HttpResponse, HttpResponseRedirect
 from django.views.generic import View, ListView, UpdateView, DeleteView
 from django.http import JsonResponse
-from django.urls import reverse_lazy
 from dashboard.models import Item, ItemGroup, CustomKV
 from dashboard.form import GroupForm, ItemForm, FieldsForm
 from utils.enhance import get_object, items_filter, RecordSysLog, auto_log
 from portal.views import DefaultMixin
+import traceback
 import logging
 import json
 
@@ -114,11 +114,17 @@ class ItemView(DefaultMixin, View):
                     d = itf.cleaned_data
                     for key, value in d.items():
                         old_value = getattr(item_obj, key)
-                        if key == 'password' and Item.decode_passwd(old_value) == value:
+                        logger.debug("key:[%s],value:[%s]" % (key, value))
+                        if key == 'password' :
+                            setattr(item_obj, key, value)
+                            if Item.decode_passwd(old_value) != value:
+                                RecordSysLog(request, "update", "Item").record_syslog(
+                                    "<%s> [%s]: %s -> %s" % (d['title'], key, Item.decode_passwd(old_value), value))
                             continue
                         if old_value != value :
                             setattr(item_obj, key, value)
-                            RecordSysLog(request, "update", "Item").record_syslog("<%s> [%s]: %s -> %s" % (d['title'], key, Item.decode_passwd(old_value), value))
+                            logger.info("set[%s] to [%s]" % (key, value))
+                            RecordSysLog(request, "update", "Item").record_syslog("<%s> [%s]: %s -> %s" % (d['title'], key, old_value, value))
                     item_obj.save()
                     return HttpResponseRedirect(reverse("dashboard:item-list")+ "?gid=%s" % item_obj.group_id)
             else:
@@ -126,7 +132,7 @@ class ItemView(DefaultMixin, View):
         except Exception as e:
             logger.error(e)
             error_msg += str(e)
-
+            logger.error(traceback.format_exc())
         return HttpResponse("操作失败:{}".format(error_msg), status=500)
 
     def delete(self, request):

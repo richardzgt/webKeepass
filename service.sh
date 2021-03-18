@@ -7,7 +7,7 @@ function stop()
 
 function start()
 {
-    gunicorn webKeepass.wsgi -b 0.0.0.0:18888 --reload -D --access-logfile /var/log/gunicorn.log  --error-logfile /var/log/gunicorn.log
+    gunicorn webKeepass.wsgi -b 0.0.0.0:18888 --reload -D --access-logfile logs/gunicorn.log  --error-logfile logs/gunicorn.log
 }
 
 function status() {
@@ -28,4 +28,7 @@ case $1 in
   stop
   start
   ;;
+  *)
+	echo "Usage: $0"
+	echo -e "\t-k[start]\n\t-s[stop]\n\t-r[restart]\n\t-l[list processes]"
 esac
